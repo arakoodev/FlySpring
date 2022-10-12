@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxp.SQLite.demo.entity.PersonEntity;
 import com.pxp.SQLite.demo.repository.PersonRepo;
-import com.pxp.SQLite.demo.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
