@@ -6,7 +6,7 @@
 
 plugins {
     id 'java'
-id 'org.springframework.boot' version '2.4.0'
+id 'org.springframework.boot' version '2.7.4'
     id 'maven-publish'
 }
 
@@ -44,7 +44,13 @@ group = 'com.pxp'
 version = '0.0.1-SNAPSHOT'
 description = 'Spring Boot and SQLite'
 java.sourceCompatibility = JavaVersion.VERSION_17
-java.targetCompatibility = JavaVersion.VERSION_17
+//java.targetCompatibility = JavaVersion.VERSION_17
+
+
+
+
+
+// OLD version compatibility
 //java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
