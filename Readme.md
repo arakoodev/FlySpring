@@ -3,6 +3,10 @@
 ##GraalVM
 To use Graal, we highly recommend using [SDKMan](https://sdkman.io/)
 
+pre-requisites
+----------
+`sudo apt install zip zlib1g-dev`
+
 1. `curl -s "https://get.sdkman.io" | zsh`
 2. `sdk list java` to see list of java JDK
 3. `sdk install java  22.3.r17-grl`
