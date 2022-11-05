@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import com.application.project.autoRoute.ArkRequest;
 import com.application.project.model.User;
 import com.application.project.service.UserServices;
 
@@ -21,7 +22,7 @@ public class FlysaveUser {
         this.userservice= new UserServices();
     }
     
-    public Mono<ServerResponse> flypost(ServerRequest request) throws Exception{
+    public Mono<ServerResponse> flypost(ArkRequest request) throws Exception{
         try {
             log.info("Save User API");
             // if(!request.queryParam("id").isPresent()){

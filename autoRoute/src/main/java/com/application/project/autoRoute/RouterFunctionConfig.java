@@ -3,6 +3,7 @@ package com.application.project.autoRoute;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -30,6 +31,9 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
+
+import com.application.project.annotation.PathVariableAnnotation;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -90,17 +94,31 @@ public class RouterFunctionConfig {
                                 case ""->getFileName(file.getName()).replace("Fly","");
                                 default ->directory+"/"+getFileName(file.getName()).replace("Fly","");
                             };
+                            String pathVariable ="";
                             System.out.println("Methods in the class: "+methods[i].getName());
 
-                            Method classMethod= clazz.getDeclaredMethod(methods[i].getName(), ServerRequest.class);
-                            
+                            Method classMethod= clazz.getDeclaredMethod(methods[i].getName(), ArkRequest.class);
+                            if(classMethod.isAnnotationPresent(PathVariableAnnotation.class)){
+                                PathVariableAnnotation annotation = classMethod.getAnnotation(PathVariableAnnotation.class);
+                                if(annotation.name().length>1){
+                                    for(String p:annotation.name()){
+                                        log.info("pathVariables:{}", p);
+                                        pathVariable = pathVariable+"/"+p;
+                                    }
+                                }else{
+                                    log.info("pathVariables:{}", annotation.name()[0]);
+                                    pathVariable = pathVariable+"/"+annotation.name()[0];
+                                }
+                               
+
+                            }
                             String methodName = methods[i].getName();
                             String apiType =  methodName.toUpperCase().replace("FLY","");
                             log.info("APItype:{}",apiType);
                             if(apiType.equalsIgnoreCase("GET")){
-                                builder.GET("/"+endPoint,req->{
+                                builder.GET(uri(endPoint,pathVariable),req->{
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),req);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -112,7 +130,7 @@ public class RouterFunctionConfig {
                             else if(apiType.equalsIgnoreCase("POST")){
                                 builder.POST("/"+endPoint,req->{
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),req);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -124,7 +142,7 @@ public class RouterFunctionConfig {
                             else if(apiType.equalsIgnoreCase("PATCH")){
                                 builder.PATCH("/"+endPoint,req->{
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),req);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -136,7 +154,7 @@ public class RouterFunctionConfig {
                             else if(apiType.equalsIgnoreCase("PUT")){
                                 builder.PUT("/"+endPoint,req->{
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),req);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -165,6 +183,11 @@ public class RouterFunctionConfig {
             }
     
         }
+
+    }
+
+    private String uri(String endpoint,String pathVariable){
+        return "/"+endpoint+(pathVariable.equals("")?"":pathVariable);
 
     }
     

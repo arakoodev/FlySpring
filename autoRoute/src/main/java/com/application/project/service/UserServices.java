@@ -66,7 +66,7 @@ public class UserServices {
         
     }
 
-    public Mono<ServerResponse> updateUser(User user) {
+    public Mono<ServerResponse> updateUser(User user, String id) {
         String query =""" 
             Update  Users set firstName=?,lastName=?,age=?,gender=? 
             Where id =?
@@ -77,7 +77,7 @@ public class UserServices {
             ps.setString(2,user.getLastName());
             ps.setString(3,user.getAge());
             ps.setString(4,user.getGender());
-            ps.setInt(5,user.getId());
+            ps.setInt(5,Integer.parseInt(id));
             if(ps.executeUpdate()==1){
                 ps.close();
                 return ServerResponse.ok().body(Mono.just("Updated Successfully"),User.class);
@@ -125,13 +125,13 @@ public class UserServices {
         return ServerResponse.ok().body(Mono.just("Error Execution"),String.class);
     }
 
-    public Mono<ServerResponse> deleteUser(User user) {
+    public Mono<ServerResponse> deleteUser(User user, String id) {
         String query =""" 
            Delete from Users Where id =?
         """;
         try {
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, user.getId());
+            ps.setInt(1, Integer.parseInt(id));
 
             if(ps.executeUpdate()==1){
                 ps.close();

@@ -17,7 +17,6 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
-
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
@@ -94,11 +93,21 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
-					<transformers>
-						<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-							<resource>META-INF/services/java.sql.Driver</resource>
-						</transformer>
-					</transformers>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.plugin.jar</groupId>
+				<artifactId>generator-maven-plugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<scope>test</scope>
 				</configuration>
 			</plugin>
 		</plugins>
