@@ -1,3 +1,12 @@
 {
-   "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "lezter-prog",
+      "id": 64340170,
+      "comment_id": 1304537852,
+      "created_at": "2022-11-05T12:30:44Z",
+      "repoId": 549201225,
+      "pullRequestNo": 7
+    }
+  ]
 }
