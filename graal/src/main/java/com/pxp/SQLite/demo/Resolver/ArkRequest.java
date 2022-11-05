@@ -11,6 +11,8 @@ import java.util.Map;
  * Dated: 15-10-2022 0950 pm
  * Stackoverflow: https://stackoverflow.com/questions/73996101/spring-argumentresolver-to-get-pathvariable-map-and/74061738#74061738
  */
+
+ 
 public class ArkRequest {
 
         public Map<String, String> pathVariables;

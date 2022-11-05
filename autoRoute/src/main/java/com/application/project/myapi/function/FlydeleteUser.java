@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import com.application.project.annotation.PathVariableAnnotation;
+import com.application.project.autoRoute.ArkRequest;
 import com.application.project.model.User;
 import com.application.project.service.UserServices;
 
@@ -19,7 +21,8 @@ public class FlydeleteUser {
         this.userservice= new UserServices();
     }
     
-    public Mono<ServerResponse> flypost(ServerRequest request) throws Exception{
+    @PathVariableAnnotation(name="{id}")
+    public Mono<ServerResponse> flypost(ArkRequest request) throws Exception{
         try {
             log.info("Update User API");
             // if(!request.queryParam("id").isPresent()){
@@ -27,7 +30,7 @@ public class FlydeleteUser {
             // }
             return request.bodyToMono(User.class).flatMap(req->{
                 log.info("This is User Request for Updating: {}", req);
-                return userservice.deleteUser(req);
+                return userservice.deleteUser(req,request.getPathVariable("id"));
             });
            
             

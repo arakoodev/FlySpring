@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.application.project.autoRoute.ArkRequest;
 import com.application.project.model.User;
 import com.application.project.myapi.FlysaveUser;
 import com.application.project.service.UserServices;
@@ -59,9 +60,9 @@ public class FlysaveUserTest {
         user.setLastName("Adams");
 
         MockServerRequest ms =  MockServerRequest.builder().body(Mono.just(user));
-        webTestClient.mutate().baseUrl("localhost:8080");
+        ArkRequest request = new ArkRequest(ms);
             
-        Mono<ServerResponse> response = flysaveUser.flypost(ms);
+        Mono<ServerResponse> response = flysaveUser.flypost(request);
 
         StepVerifier.create(response).expectSubscription().assertNext(res->{
             assertNotNull(res);
