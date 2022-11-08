@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.plugin.jar</groupId>
+	<artifactId>generator-maven-plugin</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>maven-plugin</packaging>
+	<name>generator</name>
+	<description>Generate Jar Files for allowed Controller</description>
+
+	<prerequisites>
+		<maven>${mavenVersion}</maven>
+	</prerequisites>
+
+	<properties>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+		<mavenVersion>3.2.5</mavenVersion>
+    </properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>${mavenVersion}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>${mavenVersion}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${mavenVersion}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-model</artifactId>
+			<version>${mavenVersion}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+			<version>3.6.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-archiver</artifactId>
+			<version>3.6.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>file-management</artifactId>
+			<version>3.1.0</version>
+		  </dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-archiver</artifactId>
+			<version>4.4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<version>3.3.0</version>
+			<type>maven-plugin</type>
+		</dependency>
+		
+		<!-- Test -->
+		  <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		  </dependency>
+		  <dependency>
+			<groupId>org.apache.maven.plugin-testing</groupId>
+			<artifactId>maven-plugin-testing-harness</artifactId>
+			<version>3.3.0</version>
+			<scope>test</scope>
+		  </dependency>
+		  <dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+			<version>${mavenVersion}</version>
+			<scope>test</scope>
+		  </dependency>
+		  
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>3.6.4</version>
+				<!-- <configuration>
+						<goalPrefix>plugin</goalPrefix>
+						<outputDirectory>target/dir</outputDirectory>
+					  </configuration> -->
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.8.2</version>
+				</plugin>
+				
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+		  <id>run-its</id>
+		  <build>
+			<plugins>
+			  <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-invoker-plugin</artifactId>
+				<configuration>
+				  <goals>
+					<goal>clean</goal>
+					<goal>package</goal>
+				  </goals>
+				  <showErrors>true</showErrors>
+				</configuration>
+				<executions>
+				  <execution>
+					<id>integration-test</id>
+					<goals>
+					  <goal>install</goal>
+					  <goal>integration-test</goal>
+					</goals>
+				  </execution>
+				</executions>
+			  </plugin>
+			</plugins>
+		  </build>
+		</profile>
+	  </profiles>
+
+	
+
+</project>

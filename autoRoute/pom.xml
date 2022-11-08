@@ -63,16 +63,22 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.11.0</version>
-		</dependency>
+		</dependency> -->
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-archiver</artifactId>
+			<version>3.6.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -107,10 +113,18 @@
 					</execution>
 				</executions>
 				<configuration>
-					<scope>test</scope>
+					<controllerPath>\com\application\project\myapi</controllerPath>
+					<controllerPackage>com.application.project.myapi</controllerPackage>
+					<archive>
+						<manifest>
+						  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
+		<!-- <finalName>${final-name}</finalName> -->
 	</build>
 	<repositories>
 		<repository>
