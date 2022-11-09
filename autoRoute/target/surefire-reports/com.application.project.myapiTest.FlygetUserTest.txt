@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.application.project.myapiTest.FlygetUserTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.885 s - in com.application.project.myapiTest.FlygetUserTest

@@ -10,6 +10,17 @@
 	<name>generator</name>
 	<description>Generate Jar Files for allowed Controller</description>
 
+	<contributors>
+		<contributor>
+		  <name>Lezter Hernandez</name>
+		  <email>lezterwithgod@gmail.com</email>
+		  <organization>Fiver</organization>
+		  <roles>
+			<role>Java Developer</role>
+		  </roles>
+		</contributor>
+	  </contributors>
+
 	<prerequisites>
 		<maven>${mavenVersion}</maven>
 	</prerequisites>
@@ -121,10 +132,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>3.6.4</version>
-				<!-- <configuration>
-						<goalPrefix>plugin</goalPrefix>
-						<outputDirectory>target/dir</outputDirectory>
-					  </configuration> -->
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

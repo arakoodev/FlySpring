@@ -25,12 +25,18 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 
-
+/* Plugin to Generate Jar
+ * Based on the contoller in a specific package
+ * Created By Lezter
+ * Fiver Project
+ */
 @Mojo(name="generate",defaultPhase = LifecyclePhase.COMPILE, requiresProject = true, threadSafe = true,
 requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GeneratorApplication   extends AbstractMojo{
 
 	private static final String[] DEFAULT_INCLUDES = new String[] { "**/**" };
+
+	
 
 
 	@Parameter( defaultValue = "${session}", readonly = true, required = true )
@@ -65,9 +71,7 @@ public class GeneratorApplication   extends AbstractMojo{
 
 	//target folder where you want to save jar
 	private static final String TARGET_FOLDER = "dist/";
-	// path of the installed maven
-	// private static final String MAVEN_RUNNER_PATH = "D:/workplace/tools/apache-maven-3.8.6/bin/mvn.cmd";
-
+	
 	static Map<String, String> controllers = new HashMap<>();
 
 	@Parameter
@@ -166,40 +170,14 @@ public class GeneratorApplication   extends AbstractMojo{
         throws MojoExecutionException, IOException
     {
 		
-
         File jarFile = getJarFile( outputDirectory, finalName, classifier );
-
-        // FileSetManager fileSetManager = new FileSetManager();
-        FileSet jarContentFileSet = new FileSet();
-        jarContentFileSet.setDirectory( classesDirectory.getAbsolutePath() );
-        jarContentFileSet.setIncludes( Arrays.asList(DEFAULT_INCLUDES) );
-        jarContentFileSet.setExcludes( excluded);
-
-		// JarOutputStream jarOutputStream = jartool.openJar(jarFile.getAbsolutePath());
-
-		// jartool.addFile(jarOutputStream, finalName, finalName);
-
-
-        // boolean containsModuleDescriptor = false;
-        // String[] includedFiles = fileSetManager.getIncludedFiles( jarContentFileSet );
-        // for ( String includedFile : includedFiles )
-        // {
-        //     if ( includedFile.endsWith( MODULE_DESCRIPTOR_FILE_NAME ) )
-        //     {
-        //         containsModuleDescriptor = true;
-        //         break;
-        //     }
-        // }
 
         String archiverName ="jar";
         MavenArchiver archiver = new MavenArchiver();
 		
-        // archiver.setCreatedBy( "Generata Jars Plugin", "com.plugin.jar", "generator-maven-plugin" );
+        archiver.setCreatedBy( "Generata Jars Plugin", "com.plugin.jar", "generator-maven-plugin" );
         archiver.setArchiver( (JarArchiver) archivers.get( archiverName ) );
         archiver.setOutputFile( jarFile );
-
-        // configure for Reproducible Builds based on outputTimestamp value
-        // archiver.configureReproducibleBuild( outputTimestamp );
 
         archive.setForced( true );
 
@@ -229,54 +207,12 @@ public class GeneratorApplication   extends AbstractMojo{
             throw new MojoExecutionException( "Error assembling JAR", e );
         }
     }
+
+	MavenProject getProject(){
+		return project;
+	}
 	
 
-	// public static void build(String targetBuildName, String exclusions)  throws Exception {
-
-	// 	// list of controllers to be exclued
-		
-
-	// 	// prepare maven command
-	// 	// String command = "mvn.cmd clean install -Dfinal-name=" + targetBuildName + " -Dexttt=" 
-	// 	// 		+ exclusions;
-
-	// 	String command ="git status";
-		
-	// 	System.out.println(command);
-
-	// 	// run maven command
-	// 	Process pr = Runtime.getRuntime().exec(command);
-
-	// 	StringBuilder builder = new StringBuilder();
-
-	// 	Executors.newSingleThreadExecutor().submit(()->
-	// 	new BufferedReader(new InputStreamReader(pr.getInputStream()))
-	// 	.lines().forEach(builder::append));
-
-	// 	System.out.println("Process waitFor: "+pr.waitFor());
-
-	// 	String error =pr.errorReader().readLine();
-	// 	System.out.println("Error in generation: "+error);
-
-
-	// 	if(pr.waitFor()!=0){
-	// 		Thread.sleep(5000);
-	// 		pr.destroy();
-	// 	}
-
-	// 	if(error!=null){
-	// 		pr.destroy();
-	// 	}
-
-
-
-	// 	// int exitCode = pr.waitFor();
-	// 	// if (exitCode != 0) {
-    //     //     throw new MojoExecutionException("Execution of command '" + command 
-    //     //         + "' failed with exit code: " + exitCode);
-    //     // }
-	// 	System.out.println("Output of the command: "+builder);
-	// }
 	protected boolean hasClassifier()
     {
         return classifier != null && classifier.trim().length() > 0;
