@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.application.project.autoRoute.ArkRequest;
 import com.application.project.myapi.FlygetUser;
-import com.application.project.service.UserServices;
+import com.application.project.repository.PersonRepo;
+import com.application.project.repository.PersonService;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -27,12 +28,15 @@ import reactor.test.StepVerifier;
 @WebFluxTest(FlygetUser.class)
 @ContextConfiguration(classes = {
     FlygetUser.class,
-    UserServices.class
+    PersonService.class
   })
 public class FlygetUserTest {
 
     @MockBean
-    private UserServices userServices;
+    private PersonService userServices;
+
+    @MockBean
+    private PersonRepo personRepo;
 
     @Autowired
     private FlygetUser flygetUser;
