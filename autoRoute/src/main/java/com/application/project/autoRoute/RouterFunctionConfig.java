@@ -1,44 +1,34 @@
 package com.application.project.autoRoute;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
 
 import com.application.project.annotation.PathVariableAnnotation;
+import com.application.project.entity.PersonEntity;
+import com.application.project.repository.PersonRepo;
+import com.application.project.repository.PersonService;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +36,16 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Configuration
+@EnableAutoConfiguration
+@EntityScan(basePackageClasses=PersonEntity.class)
+@EnableJpaRepositories(basePackageClasses = PersonRepo.class)
+@ComponentScan(basePackageClasses = PersonService.class)
+@EnableTransactionManagement
 public class RouterFunctionConfig {
+
+
+    @Autowired
+    private  AutowireCapableBeanFactory autowireCapableBeanFactory;
 
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
@@ -87,6 +86,7 @@ public class RouterFunctionConfig {
                 try {
                     Class<?> clazz = Class.forName("com.application.project.myapi."+(directory.equals("")?"":directory.replace("/", ".")+".")+getFileName(file.getName()));
                     
+                    //  clazz = applicationContext.getBean(clazz.getClass());
                     Method[] methods = clazz.getDeclaredMethods();
                     for(int i=0;i<methods.length;i++){
                         if(methods[i].getName().toUpperCase().contains("FLY") && !methods[i].getName().toUpperCase().contains("$")){
@@ -102,10 +102,11 @@ public class RouterFunctionConfig {
                                 PathVariableAnnotation annotation = classMethod.getAnnotation(PathVariableAnnotation.class);
                                 if(annotation.name().length>1){
                                     for(String p:annotation.name()){
-                                        log.info("pathVariables:{}", p);
+                                        log.info(getFileName(file.getName())+" pathVariables:{}", p);
                                         pathVariable = pathVariable+"/"+p;
                                     }
                                 }else{
+                                    log.info(getFileName(file.getName())+" pathVariables:{}", annotation.name()[0]);
                                     log.info("pathVariables:{}", annotation.name()[0]);
                                     pathVariable = pathVariable+"/"+annotation.name()[0];
                                 }
@@ -117,8 +118,19 @@ public class RouterFunctionConfig {
                             log.info("APItype:{}",apiType);
                             if(apiType.equalsIgnoreCase("GET")){
                                 builder.GET(uri(endPoint,pathVariable),req->{
+                                    // autowireCapableBeanFactory.createBean(PersonRepo.class, 1, true);
+                                    // autowireCapableBeanFactory.autowire(PersonRepo.class, 1, false);
+                                    // autowireCapableBeanFactory.initializeBean(clazz, "personRepo");
+                                    // autowireCapableBeanFactory.createBean(clazz, 1, true);
+                                   
+                                    // autowireCapableBeanFactory.initializeBean(clazz, getFileName(file.getName()));
+                                    
+
+                                            
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
+                                        Object cl =clazz.getDeclaredConstructor().newInstance();
+                                        autowireCapableBeanFactory.autowireBean(cl);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -128,9 +140,11 @@ public class RouterFunctionConfig {
                                 });
                             }
                             else if(apiType.equalsIgnoreCase("POST")){
-                                builder.POST("/"+endPoint,req->{
+                                builder.POST(uri(endPoint,pathVariable),req->{
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
+                                        Object cl =clazz.getDeclaredConstructor().newInstance();
+                                        autowireCapableBeanFactory.autowireBean(cl);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -140,9 +154,12 @@ public class RouterFunctionConfig {
                                 });
                             }
                             else if(apiType.equalsIgnoreCase("PATCH")){
-                                builder.PATCH("/"+endPoint,req->{
+                                builder.PATCH(uri(endPoint,pathVariable),req->{
+                                    
                                     try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
+                                        Object cl =clazz.getDeclaredConstructor().newInstance();
+                                        autowireCapableBeanFactory.autowireBean(cl);
+                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
                                         return res;
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -190,5 +207,15 @@ public class RouterFunctionConfig {
         return "/"+endpoint+(pathVariable.equals("")?"":pathVariable);
 
     }
+
+    // @PostConstruct
+    // public void init(){
+    //     // autowireCapableBeanFactory.initializeBean(JpaRepository.class, "personRepo");
+    // //    autowireCapableBeanFactory.autowire(PersonRepo.class, 0, false);
+    // // autowireCapableBeanFactory.createBean(PersonRepo.class, 1, true);
+    //    autowireCapableBeanFactory.initializeBean(PersonService.class, "personService");
+    //    autowireCapableBeanFactory.autowire(PersonService.class, 1, false);
+    //     // wire stuff here
+    // }
     
 }

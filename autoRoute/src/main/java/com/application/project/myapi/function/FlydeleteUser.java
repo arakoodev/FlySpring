@@ -1,13 +1,16 @@
 package com.application.project.myapi.function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.application.project.annotation.PathVariableAnnotation;
 import com.application.project.autoRoute.ArkRequest;
+import com.application.project.entity.PersonEntity;
 import com.application.project.model.User;
-import com.application.project.service.UserServices;
+import com.application.project.repository.PersonService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -15,12 +18,9 @@ import reactor.core.publisher.Mono;
 @RestController
 @Slf4j
 public class FlydeleteUser {
-    public UserServices userservice;
+    @Autowired
+    public PersonService service;
 
-    public FlydeleteUser(){
-        this.userservice= new UserServices();
-    }
-    
     @PathVariableAnnotation(name="{id}")
     public Mono<ServerResponse> flypost(ArkRequest request) throws Exception{
         try {
@@ -28,10 +28,8 @@ public class FlydeleteUser {
             // if(!request.queryParam("id").isPresent()){
             //     return ServerResponse.ok().body(Mono.just("id is Required QueryParameter"),String.class);
             // }
-            return request.bodyToMono(User.class).flatMap(req->{
-                log.info("This is User Request for Updating: {}", req);
-                return userservice.deleteUser(req,request.getPathVariable("id"));
-            });
+            String id =request.getPathVariable("id");
+            return ServerResponse.ok().body(service.deletePerson(Integer.parseInt(id)),JsonNode.class);
            
             
         } catch (Exception e) {

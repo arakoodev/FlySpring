@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.application.project.autoRoute.ArkRequest;
 import com.application.project.model.User;
 import com.application.project.myapi.function.FlydeleteUser;
-import com.application.project.service.UserServices;
+import com.application.project.repository.PersonService;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -28,13 +28,13 @@ import reactor.test.StepVerifier;
 @WebFluxTest(FlydeleteUser.class)
 @ContextConfiguration(classes = {
     FlydeleteUser.class,
-    UserServices.class
+    PersonService.class
   })
 public class FlyDeleteUser {
 
     
     @MockBean
-    private UserServices userServices;
+    private PersonService personService;
 
     @Autowired
     private WebTestClient webTestClient;

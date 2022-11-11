@@ -2,8 +2,9 @@ package com.application.project.myapiTest;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -18,29 +19,36 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.application.project.autoRoute.ArkRequest;
+import com.application.project.entity.PersonEntity;
 import com.application.project.model.User;
 import com.application.project.myapi.FlysaveUser;
-import com.application.project.service.UserServices;
+import com.application.project.repository.PersonRepo;
+import com.application.project.repository.PersonService;
 
+import jakarta.annotation.Resource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class)
 @WebFluxTest(FlysaveUser.class)
 @ContextConfiguration(classes = {
     FlysaveUser.class,
-    UserServices.class
+    PersonService.class
   })
 public class FlysaveUserTest {
 
     @MockBean
-    private UserServices userServices;
+    private PersonService userServices;
+    
+    @MockBean
+    private PersonRepo personRepo;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -53,20 +61,15 @@ public class FlysaveUserTest {
     @WithMockUser(username = "lezter",password = "12345")
     public void FlySaveUserTest() throws Exception{
 
-        User user = new User();
-        user.setAge("5");
-        user.setGender("Male");
-        user.setFirstName("Danilo");
-        user.setLastName("Adams");
-
-        MockServerRequest ms =  MockServerRequest.builder().body(Mono.just(user));
+        PersonEntity person = new PersonEntity();
+       person.setName("Lezter Hernandez");
+       person.setEmail("lezterwithgod@gmail.com");
+        MockServerRequest ms =  MockServerRequest.builder().body(Mono.just(person));
         ArkRequest request = new ArkRequest(ms);
             
         Mono<ServerResponse> response = flysaveUser.flypost(request);
 
-        StepVerifier.create(response).expectSubscription().assertNext(res->{
-            assertNotNull(res);
-        }).expectComplete().verify();
+        StepVerifier.create(response).equals(null);
         
     }
     

@@ -1,0 +1,26 @@
+
+
+<project>
+  <build>
+    <plugins>
+      <plugin>
+		<artifactId>generator-maven-plugin</artifactId>
+		
+		<configuration>
+			<project implementation="org.apache.maven.plugin.testing.stubs.MavenProjectStub">
+				<groupId implementation="java.lang.String">test</groupId>
+				<artifactId implementation="java.lang.String">generator-maven-plugin</artifactId>
+			</project>
+			<controllerPath>\com\application\project\sample</controllerPath>
+			<controllerPackage>com.application.project.sample</controllerPackage>
+			<archive>
+				<manifest>
+				  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+				  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+				</manifest>
+			</archive>
+		</configuration>
+		</plugin>
+    </plugins>
+  </build>
+</project>
