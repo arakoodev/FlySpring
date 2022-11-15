@@ -145,15 +145,5 @@ public class RouterFunctionConfig {
             return ServerResponse.ok().body(Mono.just("Exception "+apiType),String.class);
         }
     }
-
-    // @PostConstruct
-    // public void init(){
-    //     // autowireCapableBeanFactory.initializeBean(JpaRepository.class, "personRepo");
-    // //    autowireCapableBeanFactory.autowire(PersonRepo.class, 0, false);
-    // // autowireCapableBeanFactory.createBean(PersonRepo.class, 1, true);
-    //    autowireCapableBeanFactory.initializeBean(PersonService.class, "personService");
-    //    autowireCapableBeanFactory.autowire(PersonService.class, 1, false);
-    //     // wire stuff here
-    // }
     
 }

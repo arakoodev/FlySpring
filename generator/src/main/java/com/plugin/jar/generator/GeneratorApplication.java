@@ -2,6 +2,7 @@ package com.plugin.jar.generator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,11 +46,10 @@ public class GeneratorApplication   extends AbstractMojo{
 	@Parameter( defaultValue = "${project}", readonly = true, required = true )
 	private MavenProject project;
 
-	@Parameter(property = "contollerPackage" , defaultValue="com.application.project.myapi")
-	private String controllerPackage;
+	private String controllerPackage = "com.application.project.myapi";
 
-	@Parameter(property = "controllerpath",  defaultValue="\\com\\application\\project\\myapi")
-	private String controllerPath;
+	private String controllerPath = "\\com\\application\\project\\myapi"
+		.replace("\\", FileSystems.getDefault().getSeparator());
 
 	@Component
 	Map<String, Archiver> archivers;
@@ -70,7 +70,7 @@ public class GeneratorApplication   extends AbstractMojo{
 
 
 	//target folder where you want to save jar
-	private static final String TARGET_FOLDER = "dist/";
+	private static final String TARGET_FOLDER = "dist"+FileSystems.getDefault().getSeparator();
 	
 	static Map<String, String> controllers = new HashMap<>();
 
@@ -82,18 +82,14 @@ public class GeneratorApplication   extends AbstractMojo{
 
 	@Override
 	public void execute(){
-
-		
 		String path =project.getBuild().getOutputDirectory()+controllerPath;
-		
-		;
 		File[] files = new File(path).listFiles();
 		createTargetFolder();
 		filesIteration(files);
 	}
 
 	private void filesIteration(File[] files){
-
+		String separator = FileSystems.getDefault().getSeparator();
 		for(File file:files){
 			if(file.isDirectory()){
 				filesIteration(file.listFiles());
@@ -108,7 +104,7 @@ public class GeneratorApplication   extends AbstractMojo{
 
 				try {
 					createArchive(fileName,exclusions);
-					File sourceFile= new File(outputDirectory+"/"+fileName+".jar");
+					File sourceFile= new File(outputDirectory+separator+fileName+".jar");
 					copyFile(sourceFile);
 				} catch (Exception e) {
 					getLog().info("Exception:"+e.getMessage());
