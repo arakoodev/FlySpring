@@ -3,7 +3,7 @@ package com.application.project.autoRoute;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -45,11 +45,11 @@ public class RouterFunctionConfig {
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
         ClassLoader classLoader = getClass().getClassLoader();
-
         URL sring =classLoader.getResource("");
         String path =sring.getPath();
-        String srcPth ="com/application/project/myapi";
-
+        String seperator = FileSystems.getDefault().getSeparator();
+        String srcPth ="com" + seperator + "application"
+            + seperator + "project" + seperator + "myapi";
         File[] files = new File(path + srcPth).listFiles();
 
         System.out.println("FILE in Sample "+files.toString());
