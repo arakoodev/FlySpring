@@ -41,7 +41,12 @@ public class RouterFunctionConfig {
 
     @Autowired
     private  AutowireCapableBeanFactory autowireCapableBeanFactory;
-
+    /**
+     * Register controllers' methods from package 
+     * com.application.package.myapi as endpoints that starts with '/route'
+     * The route is dependant on the class name and the request
+     * type is dependant on the method name.
+     */
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
         ClassLoader classLoader = getClass().getClassLoader();
@@ -60,11 +65,15 @@ public class RouterFunctionConfig {
         })
         .build();
     }
-
     private String getFileName(String filename){
         return FilenameUtils.removeExtension(filename);
     }
-
+    /**
+     * Using Builder to register controllers' methods from 
+     * package com.application.package.myapi as endpoints.
+     * The route is dependant on the class name and the request
+     * type is dependant on the method name.
+     */
     private void registerRouter(File[] files, Builder builder, String directory){
         // Get non-empty folders
         List<File> currentFolders = Stream.of(files)

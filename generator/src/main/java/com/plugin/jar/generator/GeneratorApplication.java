@@ -1,13 +1,9 @@
 package com.plugin.jar.generator;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystems;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
@@ -90,18 +86,20 @@ public class GeneratorApplication   extends AbstractMojo{
 
 	private void filesIteration(File[] files){
 		String separator = FileSystems.getDefault().getSeparator();
-		for(File file:files){
-			if(file.isDirectory()){
-				filesIteration(file.listFiles());
-			}else{
+		Stream.of(files)
+			.filter(File::isDirectory)
+			.collect(Collectors.toList())
+			.forEach(folder -> filesIteration(folder.listFiles()));
+		
+		Stream.of(files)
+			.filter(File::isFile)
+			.collect(Collectors.toList())
+			.forEach(file -> {
 				String fileName = getFileName(file.getName());
 				getLog().info("controllersName:"+fileName);
 
 				List<String> exclusions = getExlcusions(file.getName(), files);
-
 				getLog().info("Excluded Class:"+exclusions.toString());
-
-
 				try {
 					createArchive(fileName,exclusions);
 					File sourceFile= new File(outputDirectory+separator+fileName+".jar");
@@ -110,95 +108,69 @@ public class GeneratorApplication   extends AbstractMojo{
 					getLog().info("Exception:"+e.getMessage());
 					e.printStackTrace();
 				}
-
-
 			}
-
-		}
+		);
 	}
 
 	private String getFileName(String filename){
         return FilenameUtils.removeExtension(filename);
     }
 
-	protected List<String> getExlcusions(String controllerName,File[] files) 	
-	{
-		
-		List<String> exc = new ArrayList<>();
-		for (File file : files) {
-			if(!file.isDirectory()){
-				if(!controllerName.equalsIgnoreCase(file.getName())) {
-					exc.add(file.getName());
-				}
-			}
-			
-		}
-		
-
-		return exc;
+	protected List<String> getExlcusions(String controllerName,File[] files) 	{
+		return Stream.of(files)
+			.filter(File::isFile)
+			.filter(file -> !controllerName.equalsIgnoreCase(file.getName()))
+			.map(file -> file.getName())
+			.collect(Collectors.toList());
 	}
 
-	protected File getJarFile( File basedir, String resultFinalName, String classifier )
-    {
+	protected File getJarFile( File basedir, String resultFinalName, String classifier ){
         if ( basedir == null )
-        {
             throw new IllegalArgumentException( "basedir is not allowed to be null" );
-        }
-        if ( resultFinalName == null )
-        {
-            throw new IllegalArgumentException( "finalName is not allowed to be null" );
-        }
 
-        String fileName;
-        if ( hasClassifier() )
-        {
-            fileName = resultFinalName + "-" + classifier + ".jar";
-        }
-        else
-        {
-            fileName = resultFinalName + ".jar";
-        }
+        if ( resultFinalName == null )
+            throw new IllegalArgumentException( "finalName is not allowed to be null" );
+		
+        String fileName = resultFinalName
+			 + (hasClassifier()? "-" + classifier: "")
+			 + ".jar";
 
         return new File( basedir, fileName );
     }
 
 	public File createArchive(String finalName, List<String> excluded)
-        throws MojoExecutionException, IOException
-    {
+        throws MojoExecutionException, IOException {
 		
         File jarFile = getJarFile( outputDirectory, finalName, classifier );
 
         String archiverName ="jar";
         MavenArchiver archiver = new MavenArchiver();
 		
-        archiver.setCreatedBy( "Generata Jars Plugin", "com.plugin.jar", "generator-maven-plugin" );
+        archiver.setCreatedBy( 
+			"Generata Jars Plugin",
+			"com.plugin.jar", 
+			"generator-maven-plugin" );
         archiver.setArchiver( (JarArchiver) archivers.get( archiverName ) );
         archiver.setOutputFile( jarFile );
 
         archive.setForced( true );
 
-		
-
-        try
-        {
+        try{
             File contentDirectory = classesDirectory;
-            if ( !contentDirectory.exists() )
-            {
+            if ( !contentDirectory.exists() ){
 				getLog().warn( "Not able to create the jar" );
-            }
-            else
-            {
-				String[] strarray = new String[excluded.size()];
-
-                archiver.getArchiver().addDirectory( contentDirectory, DEFAULT_INCLUDES, excluded.toArray(strarray ));
-            }
+			} else {
+                archiver.getArchiver()
+					.addDirectory( 
+						contentDirectory, 
+						DEFAULT_INCLUDES, 
+						excluded.toArray(new String[0]));
+			}
 
             archiver.createArchive( session, project, archive );
 
             return jarFile;
-        }
-        catch ( Exception e )
-        {
+        } catch ( Exception e ) {
 			getLog().warn( "Exception!!! Not able to create the jar" );
             throw new MojoExecutionException( "Error assembling JAR", e );
         }
@@ -209,8 +181,7 @@ public class GeneratorApplication   extends AbstractMojo{
 	}
 	
 
-	protected boolean hasClassifier()
-    {
+	protected boolean hasClassifier(){
         return classifier != null && classifier.trim().length() > 0;
     }
 
