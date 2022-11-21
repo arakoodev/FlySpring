@@ -114,7 +114,7 @@ public class RouterFunctionConfig {
                         && !method.getName().contains("$"))
             .collect(Collectors.toList());
             
-        String endPoint = directory + "/" + fileName.replace("Fly","");
+        String endPoint = directory + "/" + fileName.replaceFirst("Fly","");
         for(Method method: methods){
             String pathVariable = "";
             System.out.println("Methods in the class: " + method.getName());
