@@ -19,10 +19,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
 
 import com.application.project.annotation.PathVariableAnnotation;
-import com.application.project.entity.PersonEntity;
-import com.application.project.repository.*;
-
-import jakarta.annotation.PostConstruct;
 
 import org.springframework.web.reactive.function.server.*;
 
@@ -32,9 +28,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Configuration
 @EnableAutoConfiguration
-@EntityScan(basePackageClasses=PersonEntity.class)
-@EnableJpaRepositories(basePackageClasses = PersonRepo.class)
-@ComponentScan(basePackageClasses = PersonService.class)
+@EntityScan("com.application")
+@EnableJpaRepositories("com.application")
+@ComponentScan("com.application")
 @EnableTransactionManagement
 public class RouterFunctionConfig {
 
