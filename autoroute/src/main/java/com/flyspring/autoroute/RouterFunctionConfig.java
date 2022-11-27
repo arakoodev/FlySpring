@@ -11,11 +11,7 @@ import java.util.stream.*;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.domain.*;
 import org.springframework.context.annotation.*;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
 
 import com.flyspring.autoroute.annotations.PathVariableAnnotation;
@@ -27,10 +23,6 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Configuration
-/*@EnableAutoConfiguration
-@EntityScan("com.application")
-@EnableJpaRepositories("com.application")
-@EnableTransactionManagement*/
 public class RouterFunctionConfig {
 
     @Autowired
