@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "sqlite.url",
+  "type": "java.lang.String",
+  "description": "URL of SQLite"
+}]}
