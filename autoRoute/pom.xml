@@ -127,8 +127,6 @@
 					</execution>
 				</executions>
 				<configuration>
-					<controllerPath>\com\application\project\myapi</controllerPath>
-					<controllerPackage>com.application.project.myapi</controllerPackage>
 					<archive>
 						<manifest>
 						  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

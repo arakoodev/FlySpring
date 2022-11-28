@@ -3,33 +3,24 @@ package com.application.project.autoRoute;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
 
 import com.application.project.annotation.PathVariableAnnotation;
-import com.application.project.entity.PersonEntity;
-import com.application.project.repository.PersonRepo;
-import com.application.project.repository.PersonService;
 
-import jakarta.annotation.PostConstruct;
-
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -37,25 +28,30 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Configuration
 @EnableAutoConfiguration
-@EntityScan(basePackageClasses=PersonEntity.class)
-@EnableJpaRepositories(basePackageClasses = PersonRepo.class)
-@ComponentScan(basePackageClasses = PersonService.class)
+@EntityScan("com.application")
+@EnableJpaRepositories("com.application")
+@ComponentScan("com.application")
 @EnableTransactionManagement
 public class RouterFunctionConfig {
 
 
     @Autowired
     private  AutowireCapableBeanFactory autowireCapableBeanFactory;
-
+    /**
+     * Register controllers' methods from package 
+     * com.application.package.myapi as endpoints that starts with '/route'
+     * The route is dependant on the class name and the request
+     * type is dependant on the method name.
+     */
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
         ClassLoader classLoader = getClass().getClassLoader();
-
         URL sring =classLoader.getResource("");
-        String path =sring.getPath().substring(1);
-        Path currentRelativePath = Paths.get(path);
-        String srcPth ="\\com\\application\\project\\myapi";
-        File[] files = new File(currentRelativePath+srcPth).listFiles();
+        String path =sring.getPath();
+        String seperator = FileSystems.getDefault().getSeparator();
+        String srcPth ="com" + seperator + "application"
+            + seperator + "project" + seperator + "myapi";
+        File[] files = new File(path + srcPth).listFiles();
 
         System.out.println("FILE in Sample "+files.toString());
 
@@ -65,157 +61,94 @@ public class RouterFunctionConfig {
         })
         .build();
     }
-
     private String getFileName(String filename){
         return FilenameUtils.removeExtension(filename);
     }
-
+    /**
+     * Using Builder to register controllers' methods from 
+     * package com.application.package.myapi as endpoints.
+     * The route is dependant on the class name and the request
+     * type is dependant on the method name.
+     */
     private void registerRouter(File[] files, Builder builder, String directory){
-        for (File file : files) {
-            if (file.isDirectory()) {
-    
-                System.out.println("Directory for myapi: " + file.getName());
-                directory=directory+(directory.equals("")?"":"/")+file.getName();
-                System.out.println("directory: " + directory);
-                if(file.listFiles().length>0){
-                    registerRouter(file.listFiles(), builder,directory);
-                }
-                
-            } else {
-                System.out.println("Filename without extention: " + getFileName(file.getName()));
-                try {
-                    Class<?> clazz = Class.forName("com.application.project.myapi."+(directory.equals("")?"":directory.replace("/", ".")+".")+getFileName(file.getName()));
-                    
-                    //  clazz = applicationContext.getBean(clazz.getClass());
-                    Method[] methods = clazz.getDeclaredMethods();
-                    for(int i=0;i<methods.length;i++){
-                        if(methods[i].getName().toUpperCase().contains("FLY") && !methods[i].getName().toUpperCase().contains("$")){
-                            String endPoint =  switch (directory) {
-                                case ""->getFileName(file.getName()).replace("Fly","");
-                                default ->directory+"/"+getFileName(file.getName()).replace("Fly","");
-                            };
-                            String pathVariable ="";
-                            System.out.println("Methods in the class: "+methods[i].getName());
+        // Get non-empty folders
+        List<File> currentFolders = Stream.of(files)
+            .filter(file -> file.isDirectory() && file.listFiles().length > 0 )
+            .collect(Collectors.toList());
 
-                            Method classMethod= clazz.getDeclaredMethod(methods[i].getName(), ArkRequest.class);
-                            if(classMethod.isAnnotationPresent(PathVariableAnnotation.class)){
-                                PathVariableAnnotation annotation = classMethod.getAnnotation(PathVariableAnnotation.class);
-                                if(annotation.name().length>1){
-                                    for(String p:annotation.name()){
-                                        log.info(getFileName(file.getName())+" pathVariables:{}", p);
-                                        pathVariable = pathVariable+"/"+p;
-                                    }
-                                }else{
-                                    log.info(getFileName(file.getName())+" pathVariables:{}", annotation.name()[0]);
-                                    log.info("pathVariables:{}", annotation.name()[0]);
-                                    pathVariable = pathVariable+"/"+annotation.name()[0];
-                                }
-                               
+        for(File folder: currentFolders){
+            String subDirectory = directory + "/" + folder.getName();
+            System.out.println("Directory for myapi: " + folder.getName());
+            System.out.println("directory: " + subDirectory);
+            registerRouter(folder.listFiles(), builder, subDirectory);
+        }
 
-                            }
-                            String methodName = methods[i].getName();
-                            String apiType =  methodName.toUpperCase().replace("FLY","");
-                            log.info("APItype:{}",apiType);
-                            if(apiType.equalsIgnoreCase("GET")){
-                                builder.GET(uri(endPoint,pathVariable),req->{
-                                    // autowireCapableBeanFactory.createBean(PersonRepo.class, 1, true);
-                                    // autowireCapableBeanFactory.autowire(PersonRepo.class, 1, false);
-                                    // autowireCapableBeanFactory.initializeBean(clazz, "personRepo");
-                                    // autowireCapableBeanFactory.createBean(clazz, 1, true);
-                                   
-                                    // autowireCapableBeanFactory.initializeBean(clazz, getFileName(file.getName()));
-                                    
+        // Get the files in the current folder
+        List<File> currentFiles = Stream.of(files)
+            .filter(File::isFile)
+            .collect(Collectors.toList());
 
-                                            
-                                    try{
-                                        Object cl =clazz.getDeclaredConstructor().newInstance();
-                                        autowireCapableBeanFactory.autowireBean(cl);
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
-                                        return res;
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-
-                                    }
-                                    return ServerResponse.ok().body(Mono.just("Exception GET"),String.class);
-                                });
-                            }
-                            else if(apiType.equalsIgnoreCase("POST")){
-                                builder.POST(uri(endPoint,pathVariable),req->{
-                                    try{
-                                        Object cl =clazz.getDeclaredConstructor().newInstance();
-                                        autowireCapableBeanFactory.autowireBean(cl);
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
-                                        return res;
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-
-                                    }
-                                    return ServerResponse.ok().body(Mono.just("Exception POST"),String.class);
-                                });
-                            }
-                            else if(apiType.equalsIgnoreCase("PATCH")){
-                                builder.PATCH(uri(endPoint,pathVariable),req->{
-                                    
-                                    try{
-                                        Object cl =clazz.getDeclaredConstructor().newInstance();
-                                        autowireCapableBeanFactory.autowireBean(cl);
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(cl,new ArkRequest(req));
-                                        return res;
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-
-                                    }
-                                    return ServerResponse.ok().body(Mono.just("Exception PUT"),String.class);
-                                });
-                            }
-                            else if(apiType.equalsIgnoreCase("PUT")){
-                                builder.PUT("/"+endPoint,req->{
-                                    try{
-                                        Mono<ServerResponse> res = (Mono<ServerResponse>) classMethod.invoke(clazz.getDeclaredConstructor().newInstance(),new ArkRequest(req));
-                                        return res;
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-
-                                    }
-                                    return ServerResponse.ok().body(Mono.just("Exception PUT"),String.class);
-                                });
-                            }
-
-                        }
-
-                    }
-                    
-                }catch (IllegalArgumentException e) { 
-                    log.info("==========================>Exception", e.getMessage());
-                    e.printStackTrace();
-                }catch (ClassNotFoundException e) { 
-                    log.info("==========================>Exception", e.getMessage());
-                    e.printStackTrace();
-                }
-                catch (NoSuchMethodException e) {
-                    log.info("==========================>Exception", e.getMessage());
-                    e.printStackTrace();
-                } 
-    
+        for (File file : currentFiles) {
+            try {
+                registerFile(directory, builder, file);
+            }catch (Exception e) { 
+                log.info("==========================>Exception", e.getMessage());
+                e.printStackTrace();
             }
-    
         }
 
     }
 
-    private String uri(String endpoint,String pathVariable){
-        return "/"+endpoint+(pathVariable.equals("")?"":pathVariable);
+    private void registerFile(String directory, Builder builder, File file) throws Exception{
+        String fileName = getFileName(file.getName());
+        System.out.println("Filename without extention: " + fileName);
+        Class<?> clazz = Class.forName("com.application.project.myapi"
+            + directory.replace("/", ".") + "." + fileName);
+        
+        List<Method> methods = Stream.of(clazz.getDeclaredMethods())
+            .filter(method -> method.getName().toUpperCase().contains("FLY") 
+                        && !method.getName().contains("$"))
+            .collect(Collectors.toList());
+            
+        String endPoint = directory + "/" + fileName.replaceFirst("Fly","");
+        for(Method method: methods){
+            String pathVariable = "";
+            System.out.println("Methods in the class: " + method.getName());
+            Method classMethod = clazz.getDeclaredMethod(method.getName(), ArkRequest.class);
+            if(classMethod.isAnnotationPresent(PathVariableAnnotation.class)){
+                PathVariableAnnotation annotation = classMethod
+                    .getAnnotation(PathVariableAnnotation.class);
+                for(String p:annotation.name()){
+                    log.info(fileName+" pathVariables:{}", p);
+                    pathVariable += "/" + p;
+                }
+            }
 
+            String apiType =  method.getName().toUpperCase().replace("FLY","");
+            log.info("APItype:{}",apiType);
+            String path = endPoint + pathVariable;
+            switch(apiType){
+                case "GET" -> builder.GET(path, req -> 
+                    invokeMethod(apiType, req, clazz, classMethod));
+                case "POST" -> builder.POST(path, req ->
+                    invokeMethod(apiType, req, clazz, classMethod));
+                case "PATCH" -> builder.PATCH(path, req ->
+                    invokeMethod(apiType, req, clazz, classMethod));
+                case "PUT" -> builder.PUT(path, req ->
+                    invokeMethod(apiType, req, clazz, classMethod));
+            }
+        }
     }
 
-    // @PostConstruct
-    // public void init(){
-    //     // autowireCapableBeanFactory.initializeBean(JpaRepository.class, "personRepo");
-    // //    autowireCapableBeanFactory.autowire(PersonRepo.class, 0, false);
-    // // autowireCapableBeanFactory.createBean(PersonRepo.class, 1, true);
-    //    autowireCapableBeanFactory.initializeBean(PersonService.class, "personService");
-    //    autowireCapableBeanFactory.autowire(PersonService.class, 1, false);
-    //     // wire stuff here
-    // }
+    private Mono<ServerResponse> invokeMethod(String apiType, ServerRequest req, Class<?> clazz, Method classMethod){
+        try{
+            Object instance =clazz.getDeclaredConstructor().newInstance();
+            autowireCapableBeanFactory.autowireBean(instance);
+            return (Mono<ServerResponse>) classMethod.invoke(instance, new ArkRequest(req));
+        }catch(Exception e){
+            e.printStackTrace();
+            return ServerResponse.ok().body(Mono.just("Exception "+apiType),String.class);
+        }
+    }
     
 }
