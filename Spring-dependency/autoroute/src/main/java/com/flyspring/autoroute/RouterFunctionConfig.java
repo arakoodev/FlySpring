@@ -104,7 +104,7 @@ public class RouterFunctionConfig {
         for(Method method: methods){
             String pathVariable = "";
             System.out.println("Methods in the class: " + method.getName());
-            Method classMethod = clazz.getDeclaredMethod(method.getName(), ArkRequest.class);
+            Method classMethod = clazz.getDeclaredMethod(method.getName(), FlyRequest.class);
             if(classMethod.isAnnotationPresent(PathVariableAnnotation.class)){
                 PathVariableAnnotation annotation = classMethod
                     .getAnnotation(PathVariableAnnotation.class);
@@ -135,7 +135,7 @@ public class RouterFunctionConfig {
             Object instance =clazz.getDeclaredConstructor().newInstance();
             instance = autowireCapableBeanFactory.createBean(clazz);
             autowireCapableBeanFactory.autowireBean(instance);
-            return (Mono<ServerResponse>) classMethod.invoke(instance, new ArkRequest(req));
+            return (Mono<ServerResponse>) classMethod.invoke(instance, new FlyRequest(req));
         }catch(Exception e){
             e.printStackTrace();
             return ServerResponse.ok().body(Mono.just("Exception "+apiType),String.class);

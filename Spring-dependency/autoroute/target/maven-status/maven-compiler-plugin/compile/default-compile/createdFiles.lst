@@ -1,4 +1,4 @@
 com/flyspring/autoroute/annotations/PathVariableAnnotation.class
 com/flyspring/autoroute/RouterFunctionConfig.class
 com/flyspring/autoroute/PropertiesLoader.class
-com/flyspring/autoroute/ArkRequest.class
+com/flyspring/autoroute/FlyRequest.class
