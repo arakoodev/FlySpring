@@ -5,12 +5,7 @@ FlySpring is a gymnastic maneuver designed to build momentum and to launch the a
 ![Fly Spring](https://user-images.githubusercontent.com/76883/206560658-582a632f-bd32-4b0c-8359-ae2b9e49defe.png)
 
 
-## ⚔️ Kill The Wallet
-
-- 👐 **Open Source**. We have the exact same license as Metamask
-- 🎁 **No Extensions**. Just use the damn browser!
-- 🙈 **Privacy First**. Not even ads.
-- 🔐 **Cryptographic storage**. We use [Flutter Secure Store](https://pub.dev/packages/flutter_secure_storage) for secure storage on mobile. On Android and ios, it uses the native encrypted storage (like secure enclave)
+## ⚔️ Kill The Decorator
 
 
 ## 🎊 Community
