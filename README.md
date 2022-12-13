@@ -19,7 +19,9 @@ FlySpring is a gymnastic maneuver designed to build momentum and to launch the a
 
 ## 🪅 Getting Started
 
-1. It's Spring !
+It's Spring ! Just two steps.
+1. Install the `Spring-dependency/autoroute` plugin first. use `mvn install` inside the directory
+2. After that, Run the example `Examples/importingProject` using maven.
 
 ## 🧐 Contributing Guidelines (There is only one)
 
