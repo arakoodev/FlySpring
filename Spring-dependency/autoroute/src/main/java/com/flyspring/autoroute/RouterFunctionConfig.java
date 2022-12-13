@@ -27,6 +27,7 @@ public class RouterFunctionConfig {
 
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private String prefix = "/route";
     /**
      * Register controllers' methods from package 
      * com.application.package.myapi as endpoints that starts with '/route'
@@ -46,7 +47,7 @@ public class RouterFunctionConfig {
         System.out.println("FILE in Sample "+files.toString());
 
         return RouterFunctions.route()
-        .path("/route",builder->{
+        .path(prefix,builder->{
             registerRouter(files, builder,"");
         })
         .build();
@@ -116,6 +117,7 @@ public class RouterFunctionConfig {
 
             String apiType =  method.getName().toUpperCase().replace("FLY","");
             log.info("APItype:{}",apiType);
+            log.info("Endpoint:{}", prefix + endPoint);
             String path = endPoint + pathVariable;
             switch(apiType){
                 case "GET" -> builder.GET(path, req -> 
