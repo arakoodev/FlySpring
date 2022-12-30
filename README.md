@@ -4,6 +4,12 @@ Simple framework on top of Spring Boot. no bullshit
 FlySpring is a gymnastic maneuver designed to build momentum and to launch the athlete.  
 ![Fly Spring](https://user-images.githubusercontent.com/76883/206560658-582a632f-bd32-4b0c-8359-ae2b9e49defe.png)
 
+# FlyFly
+`flyfly` is our magical cli. It supercharges your development cycle. Your spring code gets autorefreshed whenever you make a code change. instant reloads. Also sets up Testcontainers for you.
+And does instantaneous code formatting for you, so your java code looks fresh and clean. Dont leave home without `flyfly`.
+
+[![FlyFly cli from Arakoo FlySpring](https://user-images.githubusercontent.com/76883/210039417-6b513ed8-8a25-4e69-83c5-49ab05520c9d.jpg)](https://youtu.be/ZH86LTfjWtU)
+
 
 ## ⚔️ Kill The Decorator
 
