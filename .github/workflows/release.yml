@@ -1,0 +1,37 @@
+name: "Arakoo Build"
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 11, 17 ]
+        graal: [ 22.3.0 ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository/*/*
+            !~/.m2/repository/com/arakoo
+          key: ${{ runner.os }}-cron-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-cron-maven
+            ${{ runner.os }}-maven
+
+      - name: Install JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+
+      - name: Build - JVM
+        run: mvn -B -s .github/cron-maven-settings.xml clean verify -Dquarkus-version=999-SNAPSHOT
+
+      - name: Build - Native
+        if: matrix.graal != 'none'
+        run: mvn -B -s .github/cron-maven-settings.xml clean verify -Dquarkus-version=999-SNAPSHOT -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:${{ matrix.graal }}-java${{ matrix.java }}
