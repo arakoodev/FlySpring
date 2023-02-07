@@ -16,6 +16,8 @@ And does instantaneous code formatting for you, so your java code looks fresh an
 
 ## 🎊 Community
 
+💫💫💫 **we would be very grateful if you could take 5 seconds to star our repository on Github. It helps get the word out to more Java developers & open source committers about FlySpring.** 💫💫💫
+
 - Follow our [Twitter](https://twitter.com/arakoodev)
 - Join  [support Discord](https://discord.gg/MtEPK9cnSF) to get help, or to chat with us!!!
 - Open a [discussion](https://github.com/arakoodev/FlySpring/discussions/new) with your question, or
