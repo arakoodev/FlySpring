@@ -3,6 +3,10 @@ package com.flyspring.autoroute;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.*;
+
+import org.glowroot.agent.api.Glowroot;
+import org.glowroot.agent.api.Instrumentation;
+import org.glowroot.agent.api.Instrumentation.Transaction;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,19 +102,21 @@ public class RouterFunctionConfig {
             String path = endPoint + pathVariable;
             switch(apiType){
                 case "GET" -> builder.GET(path, req -> 
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "POST" -> builder.POST(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "PATCH" -> builder.PATCH(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "PUT" -> builder.PUT(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
             }
         }
     }
-
-    private Mono<ServerResponse> invokeMethod(String apiType, ServerRequest req, Class<?> clazz, Method classMethod){
+    @Instrumentation.Timer("FlySpring Timer")
+    @Transaction(timer = "FlySpring Timer", traceHeadline = "", transactionName = "FlySpring", transactionType = "Web")
+    private Mono<ServerResponse> invokeMethod(String apiType, String path, ServerRequest req, Class<?> clazz, Method classMethod){
         try{
+            Glowroot.setTransactionName(apiType + ":" + prefix + path);
             Object instance =clazz.getDeclaredConstructor().newInstance();
             instance = autowireCapableBeanFactory.createBean(clazz);
             autowireCapableBeanFactory.autowireBean(instance);
