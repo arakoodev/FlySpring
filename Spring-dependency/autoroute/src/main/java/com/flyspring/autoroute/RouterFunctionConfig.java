@@ -109,6 +109,8 @@ public class RouterFunctionConfig {
                     invokeMethod(apiType, path, req, clazz, classMethod));
                 case "PUT" -> builder.PUT(path, req ->
                     invokeMethod(apiType, path, req, clazz, classMethod));
+                case "DELETE" -> builder.DELETE(path, req ->
+                    invokeMethod(apiType, path, req, clazz, classMethod));
             }
         }
     }
@@ -120,7 +122,11 @@ public class RouterFunctionConfig {
             Object instance =clazz.getDeclaredConstructor().newInstance();
             instance = autowireCapableBeanFactory.createBean(clazz);
             autowireCapableBeanFactory.autowireBean(instance);
-            return (Mono<ServerResponse>) classMethod.invoke(instance, new FlyRequest(req));
+            Object result = classMethod.invoke(instance, new FlyRequest(req));
+            if(result instanceof Mono)
+                return (Mono<ServerResponse>) classMethod.invoke(instance, new FlyRequest(req));
+            return ServerResponse.ok().body(
+                Mono.just(result), classMethod.getReturnType());
         }catch(Exception e){
             e.printStackTrace();
             return ServerResponse.ok().body(Mono.just("Exception "+apiType),String.class);
