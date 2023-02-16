@@ -148,9 +148,7 @@ public class TestContainersStarter {
     public void destroy(){
         try {
             removeTempProperties();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) {}
         if(mysql != null && mysql.isRunning())
             mysql.close();
         if(postgre != null && postgre.isRunning())

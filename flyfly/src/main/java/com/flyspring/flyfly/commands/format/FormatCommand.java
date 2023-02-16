@@ -15,18 +15,16 @@ import picocli.CommandLine.Command;
 @Slf4j
 public class FormatCommand implements Runnable {
     @Autowired
-    MavenFormatter mavenFormatter;
+    Formatter formatter;
     @Autowired
-    GradleFormatter gradleFormatter;
+    ProjectTypeChecker projectTypeChecker;
 
     @Override
     public void run() {
-        if(ProjectTypeChecker.isMavenProject())
-            mavenFormatter.format();
-        else if (ProjectTypeChecker.isGradleProject())
-            gradleFormatter.format();
+        if (projectTypeChecker.isGradleProject())
+            formatter.format();
         else{
-            log.error("Couldn't find pom.xml or build.gradle");
+            log.error("Couldn't find build.gradle");
             log.error("Please try again inside the project directory");
         }
     }

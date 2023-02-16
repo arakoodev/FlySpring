@@ -1,14 +1,14 @@
 package com.flyspring.autoroute;
 
-import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
-
-import org.apache.commons.io.FilenameUtils;
+import org.glowroot.agent.api.Glowroot;
+import org.glowroot.agent.api.Instrumentation;
+import org.glowroot.agent.api.Instrumentation.Transaction;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.*;
@@ -28,6 +28,7 @@ public class RouterFunctionConfig {
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
     private String prefix = "/route";
+    private final String apiPackage = "com.application.project.myapi";
     /**
      * Register controllers' methods from package 
      * com.application.package.myapi as endpoints that starts with '/route'
@@ -36,72 +37,52 @@ public class RouterFunctionConfig {
      */
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL sring =classLoader.getResource("");
-        String path =sring.getPath();
-        String seperator = FileSystems.getDefault().getSeparator();
-        String srcPth ="com" + seperator + "application"
-            + seperator + "project" + seperator + "myapi";
-        File[] files = new File(path + srcPth).listFiles();
-
-        System.out.println("FILE in Sample "+files.toString());
-
         return RouterFunctions.route()
         .path(prefix,builder->{
-            registerRouter(files, builder,"");
+            register(builder, apiPackage);
         })
         .build();
     }
-    private String getFileName(String filename){
-        return FilenameUtils.removeExtension(filename);
+    private String getFileName(String fullName){
+        return fullName.substring(fullName.lastIndexOf(".")+1);
     }
     /**
      * Using Builder to register controllers' methods from 
-     * package com.application.package.myapi as endpoints.
+     * package com.application.project.myapi as endpoints.
      * The route is dependant on the class name and the request
      * type is dependant on the method name.
      */
-    private void registerRouter(File[] files, Builder builder, String directory){
-        // Get non-empty folders
-        List<File> currentFolders = Stream.of(files)
-            .filter(file -> file.isDirectory() && file.listFiles().length > 0 )
-            .collect(Collectors.toList());
-
-        for(File folder: currentFolders){
-            String subDirectory = directory + "/" + folder.getName();
-            System.out.println("Directory for myapi: " + folder.getName());
-            System.out.println("directory: " + subDirectory);
-            registerRouter(folder.listFiles(), builder, subDirectory);
-        }
-
-        // Get the files in the current folder
-        List<File> currentFiles = Stream.of(files)
-            .filter(File::isFile)
-            .collect(Collectors.toList());
-
-        for (File file : currentFiles) {
-            try {
-                registerFile(directory, builder, file);
-            }catch (Exception e) { 
-                log.info("==========================>Exception", e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
+    private void register(Builder builder, String packageName){
+        Reflections reflections = new Reflections(packageName, new SubTypesScanner(false));
+        reflections.getSubTypesOf(Object.class)
+            .stream()
+            .forEach(clazz -> {
+                try {
+                    registerFile(builder, 
+                        clazz, 
+                        getUrlFromClassName(clazz.getName()) );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+    private String getUrlFromClassName(String className){
+        String withoutPrefix = className.replaceFirst(apiPackage + ".", "");
+        if(! withoutPrefix.contains("."))
+            return "";
+        String withoutFileName = withoutPrefix.substring(0, withoutPrefix.lastIndexOf("."));
+        return withoutFileName.replace(".", "/");
     }
 
-    private void registerFile(String directory, Builder builder, File file) throws Exception{
-        String fileName = getFileName(file.getName());
+    private void registerFile(Builder builder, Class<?> clazz, String urlString) throws Exception{
+        String fileName = getFileName(clazz.getName());
         System.out.println("Filename without extention: " + fileName);
-        Class<?> clazz = Class.forName("com.application.project.myapi"
-            + directory.replace("/", ".") + "." + fileName);
-        
         List<Method> methods = Stream.of(clazz.getDeclaredMethods())
             .filter(method -> method.getName().toUpperCase().contains("FLY") 
                         && !method.getName().contains("$"))
             .collect(Collectors.toList());
             
-        String endPoint = directory + "/" + fileName.replaceFirst("Fly","");
+        String endPoint = urlString + "/" + fileName.replaceFirst("Fly","");
         for(Method method: methods){
             String pathVariable = "";
             System.out.println("Methods in the class: " + method.getName());
@@ -121,23 +102,31 @@ public class RouterFunctionConfig {
             String path = endPoint + pathVariable;
             switch(apiType){
                 case "GET" -> builder.GET(path, req -> 
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "POST" -> builder.POST(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "PATCH" -> builder.PATCH(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
                 case "PUT" -> builder.PUT(path, req ->
-                    invokeMethod(apiType, req, clazz, classMethod));
+                    invokeMethod(apiType, path, req, clazz, classMethod));
+                case "DELETE" -> builder.DELETE(path, req ->
+                    invokeMethod(apiType, path, req, clazz, classMethod));
             }
         }
     }
-
-    private Mono<ServerResponse> invokeMethod(String apiType, ServerRequest req, Class<?> clazz, Method classMethod){
+    @Instrumentation.Timer("FlySpring Timer")
+    @Transaction(timer = "FlySpring Timer", traceHeadline = "", transactionName = "FlySpring", transactionType = "Web")
+    private Mono<ServerResponse> invokeMethod(String apiType, String path, ServerRequest req, Class<?> clazz, Method classMethod){
         try{
+            Glowroot.setTransactionName(apiType + ":" + prefix + path);
             Object instance =clazz.getDeclaredConstructor().newInstance();
             instance = autowireCapableBeanFactory.createBean(clazz);
             autowireCapableBeanFactory.autowireBean(instance);
-            return (Mono<ServerResponse>) classMethod.invoke(instance, new FlyRequest(req));
+            Object result = classMethod.invoke(instance, new FlyRequest(req));
+            if(result instanceof Mono)
+                return (Mono<ServerResponse>) classMethod.invoke(instance, new FlyRequest(req));
+            return ServerResponse.ok().body(
+                Mono.just(result), classMethod.getReturnType());
         }catch(Exception e){
             e.printStackTrace();
             return ServerResponse.ok().body(Mono.just("Exception "+apiType),String.class);
