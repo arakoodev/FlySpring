@@ -1,5 +1,6 @@
 # FlySpring
-Simple framework on top of Spring Boot. no bullshit
+Simple framework on top of Spring Boot. no bullshit   
+ ▶ [Play with our starter on Replit](https://replit.com/@arakoodev/starter)
 
 FlySpring is a gymnastic maneuver designed to build momentum and to launch the athlete.  
 ![Fly Spring](https://user-images.githubusercontent.com/76883/206560658-582a632f-bd32-4b0c-8359-ae2b9e49defe.png)
