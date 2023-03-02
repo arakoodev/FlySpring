@@ -20,7 +20,7 @@ And does instantaneous code formatting for you, so your java code looks fresh an
 💫💫💫 **we would be very grateful if you could take 5 seconds to star our repository on Github. It helps get the word out to more Java developers & open source committers about FlySpring.** 💫💫💫
 
 - Follow our [Twitter](https://twitter.com/arakoodev)
-- Join  [support Discord](https://discord.gg/MtEPK9cnSF) to get help, or to chat with us!!!
+- Join  [Discord](https://discord.gg/MtEPK9cnSF) to write code, get help, or to chat with us!!!
 - Open a [discussion](https://github.com/arakoodev/FlySpring/discussions/new) with your question, or
 - Open [a bug](https://github.com/arakoodev/FlySpring/issues/new)
 - Check open [Github Issues](https://github.com/arakoodev/FlySpring/issues)
