@@ -78,9 +78,9 @@ public class ProjectRunner {
     void runTheProject() throws IOException {
         String[] command;
         if(SystemUtils.IS_OS_WINDOWS)
-            command = new String[]{"cmd", "/c", "gradle", "bootRun"};
+            command = new String[]{"cmd", "/c", "gradlew.bat", "bootRun"};
         else
-            command = new String[]{"gradle", "bootRun"};
+            command = new String[]{"./gradlew", "bootRun"};
 
         runningProcess = new ProcessExecutor()
                 .command(command)
