@@ -1,12 +1,10 @@
 package com.flyspring.autoroute;
 
-import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -53,21 +51,25 @@ public class AuthConfig {
     }
     private void requireRoles(AuthorizeExchangeSpec spec){
         String requestPrefix = "/route/secured/role/";
-        String separator = FileSystems.getDefault().getSeparator();
-        File roleFolder = Paths
-            .get("src" +separator+"main" +separator+"java"
-                +separator+"com" +separator+"application" +separator+"project"
-                +separator+"myapi" +separator+"secured" +separator+"role")
-            .toAbsolutePath()
-            .toFile();
-        if( !roleFolder.exists() || !roleFolder.isDirectory() )
-            return;
-        Stream.of(roleFolder.listFiles())
-            .filter(File::isDirectory)
-            .forEach(folder -> {
-                spec.pathMatchers(requestPrefix+folder.getName()+"/**")
-                    .hasRole(folder.getName().toUpperCase());
+        String rootPackage = "com.application.project.myapi.secured.role";
+        Reflections reflections = new Reflections(rootPackage,
+                                             new SubTypesScanner(false));
+        Set<String> roles = new HashSet<>();
+        reflections.getSubTypesOf(Object.class)
+            .stream()
+            .forEach(clazz -> {
+                String name = clazz.getPackage().getName();
+                if(name.equals(rootPackage))
+                    return;
+                name = name.replace(rootPackage+".", "");
+                if(name.contains("."))
+                    return;
+                roles.add(name);
             });
+        for(String role: roles){
+            spec.pathMatchers(requestPrefix + role + "/**")
+                    .hasRole(role.toUpperCase());
+        }
     }
 
     @Bean
