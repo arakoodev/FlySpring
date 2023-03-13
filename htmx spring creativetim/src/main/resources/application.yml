@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/htmx
     username: root
-    password:
+    password: NewPassword
   jpa:
     show-sql: false
     hibernate:
