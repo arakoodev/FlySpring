@@ -28,9 +28,20 @@ And does instantaneous code formatting for you, so your java code looks fresh an
 
 ## 🪅 Getting Started
 
-It's Spring ! Just two steps.
-1. Install the `Spring-dependency/autoroute` plugin first. use `mvn install` inside the directory
-2. After that, Run any example from `Examples` using maven.
+It's Spring ! Just three steps.
+
+cd to autoroute directory
+```console
+mvn clean package -P gofly
+```
+cd to flyfly directory
+```console
+mvn clean package -P gofly
+```
+Now cd into Examples/starter :- flyfly is ready to roll!
+```bash
+java -jar flyfly.jar <command>
+```
 
 ## 🧐 Contributing Guidelines (There is only one)
 
