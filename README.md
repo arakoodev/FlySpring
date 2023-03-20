@@ -28,9 +28,20 @@ And does instantaneous code formatting for you, so your java code looks fresh an
 
 ## 🪅 Getting Started
 
-It's Spring ! Just two steps.
-1. Go to `flyfly` directory and use `mvn install` inside the directory.
-2. After that, copy this jar to any one of the example projects from `Examples` and run `java -jar flyfly-0.0.1-SNAPSHOT.jar run`
+It's Spring ! Just three steps.
+
+cd to autoroute directory
+```console
+mvn clean package -P gofly
+```
+cd to flyfly directory
+```console
+mvn clean package -P gofly
+```
+Now cd into Examples/starter :- flyfly is ready to roll!
+```bash
+java -jar flyfly.jar <command>
+```
 
 ## 🧐 Contributing Guidelines (There is only one)
 
