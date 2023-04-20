@@ -6,32 +6,17 @@ FlySpring is a simple framework on top of Spring Boot that aims to make Java dev
 
 To use FlySpring, you need to have Java 11 or higher and Maven installed on your system. You also need to install the `flyfly` CLI by following the instructions on the [GitHub repository](https://github.com/arakoodev/FlySpring).
 
-To start a new FlySpring project, you can use the `flyfly init` command and choose a template from the available options. This will create a Maven project with the necessary dependencies and configuration files.
+
 
 Alternatively, you can clone one of the [examples](https://github.com/arakoodev/FlySpring/tree/main/Examples) from the GitHub repository and run `mvn install` inside the project directory.
 
 ## Development
 
-To run your FlySpring project in development mode, you can use the `flyfly dev` command. This will start a local server on port 8080 and watch for any changes in your source code. Whenever you make a change, `flyfly` will automatically reload your application and refresh your browser.
+To run your FlySpring project in development mode, you can use the flyfly run command. This will start a local server on port 8080 and watch for any changes in your source code. Whenever you make a change, flyfly will automatically reload your application and refresh your browser.
 
-You can also use `flyfly test` to run your tests using Testcontainers, which provide isolated and reproducible environments for testing. `flyfly` will automatically set up and tear down the containers for you.
+To format your code according to the Google Java Style Guide, you can use flyfly format command. This will apply consistent and elegant formatting to your Java code.
 
-To format your code according to the Google Java Style Guide, you can use `flyfly format`. This will use Google Java Format to apply consistent and readable formatting to your code.
-
-## Deployment
-
-To deploy your FlySpring project, you can use the `flyfly build` command. This will create a JAR file that contains your application and all its dependencies. You can then run the JAR file using `java -jar target/flyspring.jar`.
-
-You can also use `flyfly deploy` to deploy your application to a cloud platform such as Heroku or AWS. You will need to provide some configuration options such as the platform name, the app name, and the credentials. `flyfly` will then use the appropriate tools to build and deploy your application.
-
-## Features
-
-FlySpring offers several features that make Java development easier and faster. Some of these features are:
-
-- Autoroute: A plugin that automatically maps your controller methods to HTTP endpoints based on their names and annotations. You don't need to write any explicit routing code or configuration files.
-- HTMX: A library that allows you to update parts of your web page dynamically using HTML attributes and AJAX requests. You don't need to write any JavaScript code or deal with complex frameworks.
-- Arakoo: A library that provides a simple and elegant way to write HTML templates using Java code. You don't need to learn any new syntax or use any external files.
-- Testcontainers: A library that allows you to run your tests against real databases, message brokers, web servers, and other services using Docker containers. You don't need to install or configure any external dependencies or mock any components.
+To get help on using flyfly, you can use flyfly help command. This will display a list of available commands and options.
 
 ## Contributing
 
