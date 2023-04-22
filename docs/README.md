@@ -4,11 +4,7 @@ FlySpring is a simple framework on top of Spring Boot that aims to make Java dev
 
 ## Installation
 
-To use FlySpring, you need to have Java 11 or higher and Maven installed on your system. You also need to install the `flyfly` CLI by following the instructions on the [GitHub repository](https://github.com/arakoodev/FlySpring).
-
-
-
-Alternatively, you can clone one of the [examples](https://github.com/arakoodev/FlySpring/tree/main/Examples) from the GitHub repository and run `mvn install` inside the project directory.
+To use FlySpring, you need to have Java 11 or higher and Gradle installed on your system. You also need to install the `flyfly` CLI by following the instructions on the [GitHub repository](https://github.com/arakoodev/FlySpring).
 
 ## Development
 
