@@ -11,13 +11,17 @@ import com.flyspring.flyfly.utils.ProjectTypeChecker;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
+
 @Component
 @Command(
-    name="run",
-    description = "Run a JAR or Gradle Spring Boot Application")
+        name = "run",
+        description = "Run a JAR or Gradle Spring Boot Application")
 @Slf4j
 public class RunCommand implements Runnable {
-    
+    /*
+     * This class represents a command for running a JAR or Gradle Spring Boot application.
+     */
+
     @Parameters(hidden = true)
     File[] files;
 
@@ -30,14 +34,14 @@ public class RunCommand implements Runnable {
 
     @Override
     public void run() {
-        if(files != null && files.length > 0)
+        if (files != null && files.length > 0)
             jarRunner.run(files[0]);
         else if (projectTypeChecker.isGradleProject())
             projectRunner.run();
-        else{
+        else {
             log.error("Couldn't find build.gradle");
             log.error("Please try again inside the project directory");
         }
     }
-    
+
 }

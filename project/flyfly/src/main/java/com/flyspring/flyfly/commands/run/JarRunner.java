@@ -1,3 +1,13 @@
+/**
+ * The JarRunner class is responsible for running a given jar file.
+ * It checks if the glowroot agent exists and adds it if it doesn't. Then, it runs the jar file with the
+ * added glowroot agent.
+ *
+ * @author [Your Name]
+ * @version 1.0
+ * @since [Date Created]
+ */
+
 package com.flyspring.flyfly.commands.run;
 
 import java.io.File;
@@ -21,26 +31,28 @@ public class JarRunner {
     @Autowired
     FileTools fileTools;
 
-    public void run(File jarFile){
+    public void run(File jarFile) {
         try {
-        log.info("Checking if glowroot agent exists");
-        if(! projectSetup.glowrootAgentExists()){
-            log.info("Agent doesn't exist");
-            log.info("Adding glowroot agent");
-            projectSetup.addGlowrootAgent();
-        }
-        log.info("Runnng the jar");
-        String agentPath = projectSetup.getGlowrootAgentPath();
-        String jarPath = jarFile.getAbsolutePath();
-        String[] command;
-        if(SystemUtils.IS_OS_WINDOWS)
-            command = new String[]{"cmd", "/c", "java -javaagent:"+agentPath+" -jar "+jarPath};
-        else
-            command = new String[]{"bash", "-c", "java -javaagent:"+agentPath+" -jar "+jarPath};
+            log.info("Checking if glowroot agent exists");
+            if (!projectSetup.glowrootAgentExists()) {
+                log.info("Agent doesn't exist");
+                log.info("Adding glowroot agent");
+                projectSetup.addGlowrootAgent();
+            }
+            log.info("Runnng the jar");
+            String agentPath = projectSetup.getGlowrootAgentPath();
+            String jarPath = jarFile.getAbsolutePath();
+            String[] command;
+            if (SystemUtils.IS_OS_WINDOWS)
+                command = new String[]{"cmd", "/c", "java -javaagent:" + agentPath + " -jar " + jarPath};
+            else
+                command = new String[]{"bash", "-c", "java -javaagent:" + agentPath + " -jar " + jarPath};
 
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.inheritIO();
-        pb.start().waitFor();
-    } catch (IOException | InterruptedException e) {e.printStackTrace();}
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.inheritIO();
+            pb.start().waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
