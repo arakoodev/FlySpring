@@ -60,8 +60,9 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
 
-      - name: Build - JVM
-        run: mvn -B  clean verify 
+      - name: Build Autoroute - JVM
+        run: mvn clean package -P gofly 
+        working-directory: ./project/autoroute
         
       - name: Publish test results
         if: always()
