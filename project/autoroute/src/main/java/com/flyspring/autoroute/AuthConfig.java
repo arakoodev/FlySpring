@@ -29,45 +29,44 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @EnableConfigurationProperties(AuthProperties.class)
 @EnableWebFluxSecurity
 public class AuthConfig {
-
+    
     @Autowired
     private AuthProperties authProperties;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        if (authProperties.type == null || authProperties.type.isEmpty())
+        if(authProperties.type == null || authProperties.type.isEmpty())
             return http.authorizeExchange().anyExchange().permitAll()
-                    .and().cors()
-                    .and().build();
-
-        AuthorizeExchangeSpec spec = http.authorizeExchange();
-        requireRoles(spec);
-        spec.pathMatchers("/route/secured/**").authenticated();
-        spec.pathMatchers("/**").permitAll();
-        http.cors()
-                .and().oauth2ResourceServer()
-                .jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+                .and().cors()
+                .and().build();
+                
+            AuthorizeExchangeSpec spec = http.authorizeExchange();
+            requireRoles(spec);
+            spec.pathMatchers("/route/secured/**").authenticated();
+            spec.pathMatchers("/**").permitAll();
+            http.cors()
+            .and().oauth2ResourceServer()
+            .jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor());
         return http.build();
     }
-
-    private void requireRoles(AuthorizeExchangeSpec spec) {
+    private void requireRoles(AuthorizeExchangeSpec spec){
         String requestPrefix = "/route/secured/role/";
         String rootPackage = "com.application.project.myapi.secured.role";
         Reflections reflections = new Reflections(rootPackage,
-                new SubTypesScanner(false));
+                                             new SubTypesScanner(false));
         Set<String> roles = new HashSet<>();
         reflections.getSubTypesOf(Object.class)
-                .stream()
-                .forEach(clazz -> {
-                    String name = clazz.getPackage().getName();
-                    if (name.equals(rootPackage))
-                        return;
-                    name = name.replace(rootPackage + ".", "");
-                    if (name.contains("."))
-                        return;
-                    roles.add(name);
-                });
-        for (String role : roles) {
+            .stream()
+            .forEach(clazz -> {
+                String name = clazz.getPackage().getName();
+                if(name.equals(rootPackage))
+                    return;
+                name = name.replace(rootPackage+".", "");
+                if(name.contains("."))
+                    return;
+                roles.add(name);
+            });
+        for(String role: roles){
             spec.pathMatchers(requestPrefix + role + "/**")
                     .hasRole(role.toUpperCase());
         }
@@ -93,19 +92,16 @@ public class AuthConfig {
         GrantedAuthoritiesExtractor extractor = new GrantedAuthoritiesExtractor(authProperties.audience);
         return new ReactiveJwtAuthenticationConverterAdapter(extractor);
     }
-
     static class GrantedAuthoritiesExtractor extends JwtAuthenticationConverter {
         private String audience;
-
-        public GrantedAuthoritiesExtractor(String audience) {
+        public GrantedAuthoritiesExtractor(String audience){
             super();
             this.audience = audience;
         }
-
         protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
             Collection<String> authorities = (Collection<String>)
                     jwt.getClaims().get(audience + "/roles");
-            if (authorities == null)
+            if(authorities == null)
                 authorities = new LinkedList<String>();
             return authorities.stream()
                     .map(role -> "ROLE_" + role)

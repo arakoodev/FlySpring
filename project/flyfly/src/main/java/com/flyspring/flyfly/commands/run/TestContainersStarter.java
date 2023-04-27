@@ -1,26 +1,3 @@
-/*  
-A utility class to start and stop temporary database containers using TestContainers library and add their configuration to application.properties file.
-
-Attributes:
-
-dbName (str): the name of the temporary database
-userName (str): the username of the temporary database
-password (str): the password of the temporary database
-mysql (MySQLContainer): a MySQLContainer object representing the MySQL database container
-postgre (PostgreSQLContainer): a PostgreSQLContainer object representing the PostgreSQL database container
-mariaDB (MariaDBContainer): a MariaDBContainer object representing the MariaDB database container
-flyflyTempTag (str): a string used as a tag to mark the added properties in application.properties file
-Methods:
-
-startMySQL(): starts a temporary MySQL database container, adds its configuration to application.properties file.
-startPostgreSQL(): starts a temporary PostgreSQL database container, adds its configuration to application.properties file.
-startMariaDB(): starts a temporary MariaDB database container, adds its configuration to application.properties file.
-addTempProperties(url): adds the JDBC URL, username, and password of the temporary database to application.properties file.
-removeTempProperties(): removes the temporary database configuration from application.properties file.
-isServicesNeeded(): checks if the temporary database is needed by the application based on the content of application.properties file.
-getPropertiesPath(): returns the path of application.properties file.
-destroy(): removes the temporary database configuration from application.properties file and stops the running database containers.
- */
 package com.flyspring.flyfly.commands.run;
 
 import java.io.*;
@@ -46,15 +23,15 @@ public class TestContainersStarter {
     private MariaDBContainer<?> mariaDB;
     private String flyflyTempTag = "#flyfly_temp_property";
 
-    public void startMySQL() throws IOException {
-        if (mysql != null && mysql.isRunning())
+    public void startMySQL() throws IOException{
+        if(mysql != null && mysql.isRunning())
             return;
         log.info("Starting a temporary MySQL database.");
         mysql = new MySQLContainer<>(
                 DockerImageName.parse("mysql:5.7"))
-                .withDatabaseName(dbName)
-                .withUsername(userName)
-                .withPassword(password);
+            .withDatabaseName(dbName)
+            .withUsername(userName)
+            .withPassword(password);
         mysql.addParameter("TC_MY_CNF", null);
         mysql.start();
         log.info("Database started.");
@@ -64,14 +41,14 @@ public class TestContainersStarter {
         addTempProperties(mysql.getJdbcUrl());
     }
 
-    public void startPostgreSQL() throws IOException {
-        if (postgre != null && postgre.isRunning())
+    public void startPostgreSQL() throws IOException{
+        if(postgre != null && postgre.isRunning())
             return;
         log.info("Starting a temporary PostgreSQL database.");
         postgre = new PostgreSQLContainer<>("postgres:14.5")
-                .withDatabaseName(dbName)
-                .withUsername(userName)
-                .withPassword(password);
+            .withDatabaseName(dbName)
+            .withUsername(userName)
+            .withPassword(password);
         postgre.addParameter("TC_MY_CNF", null);
         postgre.start();
         log.info("Database started.");
@@ -80,15 +57,15 @@ public class TestContainersStarter {
         log.info("DB Password: " + postgre.getPassword());
         addTempProperties(postgre.getJdbcUrl());
     }
-
-    public void startMariaDB() throws IOException {
-        if (postgre != null && postgre.isRunning())
+    
+    public void startMariaDB() throws IOException{
+        if(postgre != null && postgre.isRunning())
             return;
         log.info("Starting a temporary MariaDB database.");
         mariaDB = new MariaDBContainer<>("mariadb:10.3.6")
-                .withDatabaseName(dbName)
-                .withUsername(userName)
-                .withPassword(password);
+            .withDatabaseName(dbName)
+            .withUsername(userName)
+            .withPassword(password);
         mariaDB.addParameter("TC_MY_CNF", null);
         mariaDB.start();
         log.info("Database started.");
@@ -98,36 +75,35 @@ public class TestContainersStarter {
         addTempProperties(mariaDB.getJdbcUrl());
     }
 
-    public void addTempProperties(String url) throws IOException {
+    public void addTempProperties(String url) throws IOException{
         log.info("Appending temporary DB configuration to application.properties");
-        BufferedWriter writer =
-                new BufferedWriter(
-                        new FileWriter(getPropertiesPath(), true));
+        BufferedWriter writer = 
+            new BufferedWriter(
+                new FileWriter(getPropertiesPath(), true));
         writer.newLine();
         writer.append(flyflyTempTag);
         writer.newLine();
-        writer.append("spring.datasource.url=" + url);
+        writer.append("spring.datasource.url="+url);
         writer.newLine();
         writer.append(flyflyTempTag);
         writer.newLine();
-        writer.append("spring.datasource.username=" + userName);
+        writer.append("spring.datasource.username="+userName);
         writer.newLine();
         writer.append(flyflyTempTag);
         writer.newLine();
-        writer.append("spring.datasource.password=" + password);
+        writer.append("spring.datasource.password="+password);
         writer.flush();
         writer.close();
     }
-
-    public void removeTempProperties() throws IOException {
-        BufferedReader reader =
-                new BufferedReader(
-                        new FileReader(getPropertiesPath()));
+    public void removeTempProperties() throws IOException{
+        BufferedReader reader = 
+            new BufferedReader(
+                new FileReader(getPropertiesPath()));
         StringBuilder sb = new StringBuilder();
         boolean tempNotFound = true;
         String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.contains(flyflyTempTag)) {
+        while( (line = reader.readLine()) != null ){
+            if(line.contains(flyflyTempTag)){
                 tempNotFound = false;
                 reader.readLine();
                 continue;
@@ -135,25 +111,24 @@ public class TestContainersStarter {
             sb.append(line + "\n");
         }
         reader.close();
-        if (tempNotFound)
+        if(tempNotFound)
             return;
 
-        BufferedWriter writer =
-                new BufferedWriter(
-                        new FileWriter(getPropertiesPath()));
+        BufferedWriter writer = 
+            new BufferedWriter(
+                new FileWriter(getPropertiesPath()));
         writer.write(sb.toString());
         writer.flush();
         writer.close();
     }
-
-    public boolean isServiesNeeded() throws IOException {
-        BufferedReader reader =
-                new BufferedReader(
-                        new FileReader(getPropertiesPath()));
+    public boolean isServiesNeeded() throws IOException{
+        BufferedReader reader = 
+            new BufferedReader(
+                new FileReader(getPropertiesPath()));
         String line;
         String datafield = "spring.datasource.url";
-        while ((line = reader.readLine()) != null) {
-            if (line.contains(datafield)) {
+        while( (line = reader.readLine()) != null ){
+            if(line.contains(datafield)){
                 reader.close();
                 return false;
             }
@@ -161,27 +136,24 @@ public class TestContainersStarter {
         reader.close();
         return true;
     }
-
-    public String getPropertiesPath() {
+    public String getPropertiesPath(){
         String separator = FileSystems.getDefault().getSeparator();
         return System.getProperty("user.dir") + separator
-                + "src" + separator
-                + "main" + separator
-                + "resources" + separator
-                + "application.properties";
+            + "src" + separator
+            + "main" + separator
+            + "resources" + separator
+            + "application.properties";
     }
-
     @PreDestroy
-    public void destroy() {
+    public void destroy(){
         try {
             removeTempProperties();
-        } catch (IOException e) {
-        }
-        if (mysql != null && mysql.isRunning())
+        } catch (IOException e) {}
+        if(mysql != null && mysql.isRunning())
             mysql.close();
-        if (postgre != null && postgre.isRunning())
+        if(postgre != null && postgre.isRunning())
             postgre.close();
-        if (mariaDB != null && mariaDB.isRunning())
+        if(mariaDB != null && mariaDB.isRunning())
             mariaDB.close();
     }
 }

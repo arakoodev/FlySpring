@@ -8,27 +8,22 @@ public class AuthProperties {
     String issuer;
     String audience;
 
-    public String getType() {
+    public String getType(){
         return this.type;
     }
-
-    public void setType(String type) {
+    public void setType(String type){
         this.type = type;
     }
-
-    public String getIssuer() {
+    public String getIssuer(){
         return this.issuer;
     }
-
-    public void setIssuer(String issuer) {
+    public void setIssuer(String issuer){
         this.issuer = issuer;
     }
-
-    public String getAudience() {
+    public String getAudience(){
         return this.audience;
     }
-
-    public void setAudience(String audience) {
+    public void setAudience(String audience){
         this.audience = audience;
     }
 }
