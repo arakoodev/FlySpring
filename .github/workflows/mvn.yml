@@ -64,6 +64,10 @@ jobs:
         run: mvn clean package -P gofly 
         working-directory: ./project/autoroute
         
+      - name: Build Flyfly - JVM
+        run: mvn clean package -P gofly
+        working-directory: ./project/flyfly
+        
       - name: Publish test results
         if: always()
         uses: actions/upload-artifact@v2
