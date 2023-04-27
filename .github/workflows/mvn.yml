@@ -68,9 +68,23 @@ jobs:
         run: mvn clean package -P gofly
         working-directory: ./project/flyfly
         
+
+      - name: Move App Bundle to location
+        run: cp target/flyfly-0.0.1-SNAPSHOT.jar ./flyfly.jar
+        working-directory: ./project/flyfly
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flyfly-artifact-rel
+          path: |
+            ./project/flyfly/flyfly.jar
+            ./project/flyfly/pom.xml
+        
       - name: Publish test results
         if: always()
         uses: actions/upload-artifact@v2
         with:
          name: test-results
          path: build/reports/tests/
+    outputs:
+      relid: ${{ steps.versioninfo.outputs.pipeline_id }}
+
